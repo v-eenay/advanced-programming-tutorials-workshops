@@ -1,0 +1,10 @@
+# Database Configuration
+# ----------------------
+# Copy this file to 'application.properties' and update with your actual values
+
+# MySQL Database Connection
+db.driver=com.mysql.cj.jdbc.Driver
+db.url=jdbc:mysql://localhost:3306/user_db
+db.username=root
+db.password=password
+

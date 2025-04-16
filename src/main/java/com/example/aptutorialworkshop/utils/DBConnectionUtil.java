@@ -12,6 +12,11 @@ import java.util.Properties;
  *
  * This class provides database connection functionality using properties
  * defined in application.properties file.
+ *
+ * When implementing session management, this utility class will be used by:
+ * 1. The DAO classes to establish database connections for user authentication
+ * 2. Session validation processes that need to verify user information
+ * 3. Any database operations performed during a user's session
  */
 public class DBConnectionUtil {
     private static final String URL;

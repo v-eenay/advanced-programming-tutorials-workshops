@@ -1,9 +1,18 @@
 <%--
-  Created by IntelliJ IDEA.
-  User: koira
-  Date: 4/16/2025
-  Time: 9:09 PM
-  To change this template use File | Settings | File Templates.
+  Admin Dashboard Page
+
+  This JSP file displays the admin dashboard with user information and admin-specific functionality.
+  It shows dynamic user information (name, email, ID) and static content for demonstration.
+
+  For session management implementation:
+  - This page should be protected by a filter that checks for admin role
+  - User information should be retrieved from the session
+  - Example: UserModel user = (UserModel) session.getAttribute("user");
+
+  For logout functionality:
+  - Add a logout link that calls a LogoutServlet
+  - The LogoutServlet would invalidate the session and redirect to the login page
+  - Example: session.invalidate();
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.example.aptutorialworkshop.models.UserModel" %>

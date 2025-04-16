@@ -1,9 +1,16 @@
 <%--
-  Created by IntelliJ IDEA.
-  User: koira
-  Date: 4/16/2025
-  Time: 9:09 PM
-  To change this template use File | Settings | File Templates.
+  Registration Page
+
+  This JSP file displays the registration form and handles registration error messages.
+  It includes form validation and image preview functionality.
+
+  For session management implementation:
+  - After successful registration, the servlet could create a session for the new user
+  - Alternatively, it could redirect to the login page as it does now
+
+  For security enhancement:
+  - Consider adding CSRF protection with a token
+  - Add more client-side validation for password strength, etc.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>

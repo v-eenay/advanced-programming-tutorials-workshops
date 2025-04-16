@@ -1,9 +1,17 @@
 <%--
-  Created by IntelliJ IDEA.
-  User: koira
-  Date: 4/16/2025
-  Time: 9:09 PM
-  To change this template use File | Settings | File Templates.
+  Login Page
+
+  This JSP file displays the login form and handles login error messages.
+
+  For session management implementation:
+  - After successful login, the servlet will create a session and store user information
+  - The session can be accessed in JSP using the session implicit object
+  - Example: ${sessionScope.user.name} to display the user's name
+
+  For cookie implementation:
+  - Add a "Remember Me" checkbox to the form
+  - The servlet will create a cookie if this is checked
+  - The cookie can be used for auto-login on subsequent visits
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
@@ -46,6 +54,15 @@
                         <i class="fas fa-eye toggle-password" id="togglePassword" onclick="togglePassword('password', 'togglePassword')" style="position: absolute; right: 10px; top: 14px; cursor: pointer;"></i>
                     </div>
                     <div class="error-message">Password is required</div>
+                </div>
+
+                <%-- Remember Me checkbox for cookie implementation --%>
+                <div class="form-group remember-me">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="remember-me" id="remember-me">
+                        <span class="checkmark"></span>
+                        Remember me on this device
+                    </label>
                 </div>
 
                 <button type="submit" class="btn">Login</button>

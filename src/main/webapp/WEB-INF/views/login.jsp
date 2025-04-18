@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="${pageContext.request.contextPath}/assets/js/script.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <header>
@@ -42,26 +43,28 @@
             <% } %>
             <form id="loginForm" action="LoginServlet" method="post" onsubmit="return validateForm('loginForm')">
                 <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email address" required>
                     <div class="error-message">Please enter a valid email address</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password:</label>
+                    <label for="password">Password</label>
                     <div style="position: relative;">
-                        <input type="password" id="password" name="password" required>
-                        <i class="fas fa-eye toggle-password" id="togglePassword" onclick="togglePassword('password', 'togglePassword')" style="position: absolute; right: 10px; top: 14px; cursor: pointer;"></i>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                            <i class="fas fa-eye" id="togglePassword" onclick="togglePassword('password', 'togglePassword')" style="cursor: pointer; color: #333333;"></i>
+                        </span>
                     </div>
                     <div class="error-message">Password is required</div>
                 </div>
 
                 <%-- Remember Me checkbox for cookie implementation --%>
-                <div class="form-group remember-me">
+                <div class="form-group remember-me" style="margin-top: 10px;">
                     <label class="checkbox-container">
                         <input type="checkbox" name="remember-me" id="remember-me" value="on">
                         <span class="checkmark"></span>
-                        Remember me on this device
+                        Remember me
                     </label>
                 </div>
 
@@ -76,8 +79,9 @@
     </div>
 
     <footer>
-        <p>Module Leader: Binay Koirala | Module Tutor: Sujan Subedi</p>
         <p>&copy; 2025 Itahari International College</p>
+        <p>Advanced Programming and Technologies</p>
+        <p>Module Leader: Binay Koirala | Module Tutor: Sujan Subedi</p>
     </footer>
 </body>
 </html>

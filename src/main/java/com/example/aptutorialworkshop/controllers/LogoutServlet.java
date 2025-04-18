@@ -27,6 +27,7 @@ public class LogoutServlet extends HttpServlet {
      * Handles GET requests to the LogoutServlet
      *
      * This method invalidates the user's session using the AuthService.
+     * After logout, it redirects to the login page with a success message.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -35,13 +36,23 @@ public class LogoutServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Check if the user is actually logged in
+        HttpSession session = request.getSession(false);
+        boolean wasLoggedIn = (session != null && session.getAttribute("user") != null);
+
         // Invalidate the session using the AuthService
         AuthService.logout(request);
 
-        // Note: Cookie implementation has been removed as it will be implemented separately
+        // Note: Cookie implementation will be added later
+        // When implementing cookies, you would add code here to delete any authentication cookies
 
-        // Redirect to the login page
-        response.sendRedirect("LoginServlet");
+        // Redirect to the login page with a success message if the user was logged in
+        if (wasLoggedIn) {
+            response.sendRedirect("LoginServlet?message=You+have+been+successfully+logged+out");
+        } else {
+            // If no active session existed, just redirect to login page
+            response.sendRedirect("LoginServlet");
+        }
     }
 
     /**

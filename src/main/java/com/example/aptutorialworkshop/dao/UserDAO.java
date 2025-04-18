@@ -32,6 +32,9 @@ public class UserDAO {
     // SQL query to select a user by ID
     public static final String SELECT_USER_BY_ID = "SELECT * FROM users WHERE id = ?";
 
+    // SQL query to select a user by email
+    public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
+
     /**
      * Register a new user in the database
      *
@@ -78,35 +81,41 @@ public class UserDAO {
     /**
      * Authenticate a user by email and password
      *
-     * This method checks if the provided email and password match a user in the database.
-     * If authentication is successful, it returns the complete user object.
+     * This method is kept for backward compatibility but is no longer used for authentication.
+     * Authentication is now handled by retrieving the user by email and then verifying the password
+     * using BCrypt in the AuthService class.
      *
      * @param user A UserModel object containing at least the email and password to check
      * @return The complete UserModel if authentication is successful, null otherwise
-     *
-     * For session implementation:
-     * After successful authentication, you should:
-     * 1. Create a session for the user
-     * 2. Store the user object or user ID in the session
-     * 3. Optionally create a remember-me cookie if the user selected that option
-     * 4. Redirect to the appropriate dashboard based on user role
-     *
-     * For security enhancement:
-     * In production, this method should be updated to use password hashing:
-     * 1. Retrieve the hashed password from the database using only the email
-     * 2. Use a password hashing library to verify the provided password against the hash
+     * @deprecated Use getUserByEmail and then verify the password with BCrypt instead
      */
+    @Deprecated
     public static UserModel loginUser(UserModel user) {
+        // This method is kept for backward compatibility
+        // Authentication is now handled by retrieving the user by email and then verifying the password
+        return getUserByEmail(user.getEmail());
+    }
+
+    /**
+     * Retrieve a user by their email address
+     *
+     * This method fetches a complete user record from the database using the email address.
+     * It's used during the authentication process to retrieve the user's hashed password
+     * for verification with BCrypt.
+     *
+     * @param email The email address to look up
+     * @return The complete UserModel if found, null otherwise
+     */
+    public static UserModel getUserByEmail(String email) {
         try (Connection connection = DBConnectionUtil.getConnection();
-             PreparedStatement ps = connection.prepareStatement(SELECT_USER_BY_EMAIL_PASSWORD);) {
-            // Set parameters for the prepared statement
-            ps.setString(1, user.getEmail());
-            ps.setString(2, user.getPassword()); // In production, use password hashing
+             PreparedStatement ps = connection.prepareStatement(SELECT_USER_BY_EMAIL);) {
+            // Set the email parameter
+            ps.setString(1, email);
 
             // Execute the query
             ResultSet rs = ps.executeQuery();
 
-            // If a matching user is found, create and return a UserModel object
+            // If the user is found, create and return a UserModel object
             if (rs.next()) {
                 UserModel userFromDB = new UserModel();
                 userFromDB.setId(rs.getInt("id"));
@@ -119,10 +128,10 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             // Log the exception details for debugging
-            System.err.println("Error authenticating user: " + e.getMessage());
+            System.err.println("Error retrieving user by email: " + e.getMessage());
             throw new RuntimeException(e);
         }
-        return null; // Return null if authentication fails
+        return null; // Return null if user not found
     }
 
     /**

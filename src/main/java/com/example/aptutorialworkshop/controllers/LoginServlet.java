@@ -13,56 +13,20 @@ import java.util.Base64;
  * This servlet handles user authentication functionality. It processes both GET requests
  * to display the login form and POST requests to authenticate users.
  *
- * For session management implementation:
- * 1. After successful authentication, create a session for the user
- * 2. Store user information in the session
- * 3. Use filters to protect resources based on authentication status
+ * Session management implementation:
+ * 1. After successful authentication, creates a session for the user
+ * 2. Stores user information in the session
+ * 3. Uses filters to protect resources based on authentication status
  *
- * For cookie implementation:
- * 1. Add a "Remember Me" checkbox to the login form
- * 2. If checked, create a persistent cookie with the user's email
- * 3. Check for this cookie on subsequent visits to auto-login the user
+ * Note: Cookie implementation has been removed as it will be implemented separately.
  */
 @WebServlet(name = "LoginServlet", value = "/LoginServlet")
 public class LoginServlet extends HttpServlet {
     /**
      * Handles GET requests to the LoginServlet
      *
-     * This method displays the login form to the user. It also checks for success messages
-     * from the registration process to display them to the user.
-     *
-     * For session management implementation:
-     * You could check if the user is already logged in here and redirect them
-     * to their dashboard instead of showing the login form.
-     *
-     * Example:
-     * ```java
-     * HttpSession session = request.getSession(false);
-     * if (session != null && session.getAttribute("user") != null) {
-     *     UserModel user = (UserModel) session.getAttribute("user");
-     *     if (user.getRole() == UserModel.Role.admin) {
-     *         response.sendRedirect("AdminDashboardServlet");
-     *     } else {
-     *         response.sendRedirect("UserDashboardServlet");
-     *     }
-     *     return;
-     * }
-     * ```
-     *
-     * For cookie implementation:
-     * You could check for a remember-me cookie and auto-login the user:
-     * ```java
-     * Cookie[] cookies = request.getCookies();
-     * if (cookies != null) {
-     *     for (Cookie cookie : cookies) {
-     *         if ("user_email".equals(cookie.getName())) {
-     *             String email = cookie.getValue();
-     *             // Try to auto-login with this email
-     *             // You would need a secure way to authenticate without a password
-     *         }
-     *     }
-     * }
-     * ```
+     * This method checks if the user is already logged in and redirects them to the appropriate
+     * dashboard. If not, it displays the login form with any success messages from registration.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -71,6 +35,21 @@ public class LoginServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Check if the user is already logged in
+        if (AuthService.isAuthenticated(request)) {
+            // Get the user from the session
+            UserModel user = AuthService.getCurrentUser(request);
+
+            // Redirect to the appropriate dashboard based on user role
+            if (user.getRole() == UserModel.Role.admin) {
+                response.sendRedirect("AdminDashboardServlet");
+            } else {
+                response.sendRedirect("UserDashboardServlet");
+            }
+            return;
+        }
+
+        // User is not logged in, show the login form
         // Check if there's a success message from registration
         String message = request.getParameter("message");
         if (message != null && !message.isEmpty()) {
@@ -85,30 +64,8 @@ public class LoginServlet extends HttpServlet {
      * Handles POST requests to the LoginServlet
      *
      * This method processes the login form submission, validates the input,
-     * authenticates the user, and forwards them to the appropriate dashboard if successful.
-     *
-     * For session management implementation:
-     * After successful authentication, you should:
-     * ```java
-     * // Create a session
-     * HttpSession session = request.getSession();
-     * // Store user information
-     * session.setAttribute("user", user);
-     * // Set session timeout (in seconds)
-     * session.setMaxInactiveInterval(1800); // 30 minutes
-     * ```
-     *
-     * For cookie implementation:
-     * If the user selects "Remember Me":
-     * ```java
-     * String rememberMe = request.getParameter("remember-me");
-     * if (rememberMe != null && rememberMe.equals("on")) {
-     *     Cookie userCookie = new Cookie("user_email", email);
-     *     userCookie.setMaxAge(60*60*24*30); // 30 days
-     *     userCookie.setPath("/");
-     *     response.addCookie(userCookie);
-     * }
-     * ```
+     * authenticates the user, creates a session, and redirects them to the appropriate
+     * dashboard if successful.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -140,24 +97,8 @@ public class LoginServlet extends HttpServlet {
             UserModel user = AuthService.login(email, password);
 
             if (user != null) {
-                // Login successful
-
-                // For session implementation, you would add this code:
-                // HttpSession session = request.getSession();
-                // session.setAttribute("user", user);
-                // session.setMaxInactiveInterval(1800); // 30 minutes
-
-                // For cookie implementation, you would add this code:
-                // String rememberMe = request.getParameter("remember-me");
-                // if (rememberMe != null && rememberMe.equals("on")) {
-                //     Cookie userCookie = new Cookie("user_email", email);
-                //     userCookie.setMaxAge(60*60*24*30); // 30 days
-                //     userCookie.setPath("/");
-                //     response.addCookie(userCookie);
-                // }
-
-                // Pass user to dashboard as request attribute
-                request.setAttribute("user", user);
+                // Login successful - Create a session for the user
+                AuthService.createUserSession(request, user, 1800); // 30 minutes timeout
 
                 // Convert image bytes to Base64 for display in JSP
                 if (user.getImage() != null && user.getImage().length > 0) {
@@ -165,11 +106,11 @@ public class LoginServlet extends HttpServlet {
                     request.setAttribute("base64Image", base64Image);
                 }
 
-                // Forward to appropriate dashboard based on user role
+                // Redirect to appropriate dashboard based on user role
                 if (user.getRole() == UserModel.Role.admin) {
-                    request.getRequestDispatcher("/WEB-INF/views/admin-dashboard.jsp").forward(request, response);
+                    response.sendRedirect("AdminDashboardServlet");
                 } else {
-                    request.getRequestDispatcher("/WEB-INF/views/user-dashboard.jsp").forward(request, response);
+                    response.sendRedirect("UserDashboardServlet");
                 }
             } else {
                 // Login failed

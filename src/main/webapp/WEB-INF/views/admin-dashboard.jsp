@@ -33,20 +33,20 @@
             <div class="menu-item"><a href="#">Dashboard</a></div>
             <div class="menu-item"><a href="#">Manage Users</a></div>
             <div class="menu-item"><a href="#">Profile Settings</a></div>
-            <div class="menu-item"><a href="${pageContext.request.contextPath}/index.jsp">Logout</a></div>
+            <div class="menu-item"><a href="${pageContext.request.contextPath}/LogoutServlet">Logout</a></div>
         </div>
 
         <div class="main-content">
             <div class="card">
-                <h2>Welcome, <span><%= ((UserModel)request.getAttribute("user")).getName() %></span></h2>
+                <h2>Welcome, <span><%= ((UserModel)session.getAttribute("user")).getName() %></span></h2>
                 <div class="admin-profile">
                     <div class="profile-image">
                         <img src="data:image/jpeg;base64,${base64Image}" alt="Profile Picture" onerror="this.src='${pageContext.request.contextPath}/assets/images/default-profile.svg'" width="120" height="120">
                     </div>
                     <div class="profile-details">
-                        <p><strong>Email:</strong> <span><%= ((UserModel)request.getAttribute("user")).getEmail() %></span></p>
+                        <p><strong>Email:</strong> <span><%= ((UserModel)session.getAttribute("user")).getEmail() %></span></p>
                         <p><strong>Role:</strong> Administrator</p>
-                        <p><strong>User ID:</strong> <span><%= ((UserModel)request.getAttribute("user")).getId() %></span></p>
+                        <p><strong>User ID:</strong> <span><%= ((UserModel)session.getAttribute("user")).getId() %></span></p>
                         <p><strong>Module Leader:</strong> Binay Koirala | <strong>Module Tutor:</strong> Sujan Subedi</p>
                     </div>
                 </div>

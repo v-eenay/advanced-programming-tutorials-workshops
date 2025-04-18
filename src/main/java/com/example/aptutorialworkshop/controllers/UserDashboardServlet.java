@@ -13,60 +13,18 @@ import java.util.Base64;
  * This servlet handles the user dashboard functionality. It's responsible for
  * displaying the user dashboard and processing user-specific actions.
  *
- * For session management implementation:
- * 1. This servlet should be protected by a filter that checks if the user is authenticated
- * 2. If not authenticated, redirect to the login page
- *
- * Example filter implementation:
- * ```java
- * @WebFilter("/UserDashboardServlet")
- * public class UserAuthFilter implements Filter {
- *     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
- *             throws IOException, ServletException {
- *         HttpServletRequest httpRequest = (HttpServletRequest) request;
- *         HttpServletResponse httpResponse = (HttpServletResponse) response;
- *         HttpSession session = httpRequest.getSession(false);
- *
- *         boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
- *
- *         if (isLoggedIn) {
- *             chain.doFilter(request, response);
- *         } else {
- *             httpResponse.sendRedirect(httpRequest.getContextPath() + "/LoginServlet");
- *         }
- *     }
- * }
- * ```
+ * Session management implementation:
+ * 1. Checks if the user is authenticated using AuthService
+ * 2. If authenticated, displays the dashboard with user information
+ * 3. If not authenticated, redirects to the login page
  */
 @WebServlet(name = "UserDashboardServlet", value = "/UserDashboardServlet")
 public class UserDashboardServlet extends HttpServlet {
     /**
      * Handles GET requests to the UserDashboardServlet
      *
-     * This method should display the user dashboard to authenticated users.
-     * Currently, it redirects to the login page since there's no session management.
-     *
-     * For session management implementation:
-     * ```java
-     * HttpSession session = request.getSession(false);
-     * if (session != null && session.getAttribute("user") != null) {
-     *     UserModel user = (UserModel) session.getAttribute("user");
-     *     // User is authenticated
-     *     request.setAttribute("user", user);
-     *
-     *     // Convert image bytes to Base64 for display in JSP
-     *     if (user.getImage() != null && user.getImage().length > 0) {
-     *         String base64Image = Base64.getEncoder().encodeToString(user.getImage());
-     *         request.setAttribute("base64Image", base64Image);
-     *     }
-     *
-     *     // Forward to dashboard
-     *     request.getRequestDispatcher("/WEB-INF/views/user-dashboard.jsp").forward(request, response);
-     *     return;
-     * }
-     * // If not authenticated, redirect to login
-     * response.sendRedirect("LoginServlet");
-     * ```
+     * This method checks if the user is authenticated and displays the dashboard
+     * if they are. If not, it redirects to the login page.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -75,20 +33,40 @@ public class UserDashboardServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // For direct access to the dashboard, redirect to login
-        // In a real application with sessions, you would check for authentication here
-        response.sendRedirect("LoginServlet");
+        // Check if the user is authenticated
+        if (AuthService.isAuthenticated(request)) {
+            // Get the user from the session
+            UserModel user = AuthService.getCurrentUser(request);
+
+            // Check if this is a regular user (not admin)
+            if (user.getRole() != UserModel.Role.user) {
+                // If admin, redirect to admin dashboard
+                response.sendRedirect("AdminDashboardServlet");
+                return;
+            }
+
+            // User is authenticated and has the correct role
+            request.setAttribute("user", user);
+
+            // Convert image bytes to Base64 for display in JSP
+            if (user.getImage() != null && user.getImage().length > 0) {
+                String base64Image = Base64.getEncoder().encodeToString(user.getImage());
+                request.setAttribute("base64Image", base64Image);
+            }
+
+            // Forward to dashboard
+            request.getRequestDispatcher("/WEB-INF/views/user-dashboard.jsp").forward(request, response);
+        } else {
+            // If not authenticated, redirect to login
+            response.sendRedirect("LoginServlet");
+        }
     }
 
     /**
      * Handles POST requests to the UserDashboardServlet
      *
-     * This method currently delegates to doGet, but could be expanded to handle
-     * user-specific form submissions and actions.
-     *
-     * For session management implementation:
-     * You would first verify that the user is authenticated, then process
-     * the specific user action requested.
+     * This method verifies that the user is authenticated, then processes
+     * any user-specific form submissions or actions.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -97,7 +75,15 @@ public class UserDashboardServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // For POST requests, just call doGet to handle the same way
+        // Check if the user is authenticated
+        if (!AuthService.isAuthenticated(request)) {
+            // If not authenticated, redirect to login
+            response.sendRedirect("LoginServlet");
+            return;
+        }
+
+        // Process any user-specific form submissions here
+        // For now, just display the dashboard
         doGet(request, response);
     }
 }

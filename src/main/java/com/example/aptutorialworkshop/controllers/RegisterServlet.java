@@ -1,4 +1,5 @@
 package com.example.aptutorialworkshop.controllers;
+import com.example.aptutorialworkshop.models.UserModel;
 import com.example.aptutorialworkshop.services.AuthService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -13,12 +14,13 @@ import java.io.IOException;
  *
  * The servlet is annotated with @MultipartConfig to handle file uploads (profile pictures).
  *
- * For session management implementation:
- * 1. After successful registration, you could create a session for the user
- * 2. Store user information in the session
- * 3. Redirect to the appropriate dashboard
+ * Session management implementation:
+ * 1. Checks if user is already logged in before showing registration form
+ * 2. After successful registration, creates a session for the user
+ * 3. Redirects to the appropriate dashboard based on user role
  *
- * Currently, it redirects to the login page after successful registration.
+ * Password security:
+ * - Passwords are automatically hashed using BCrypt in the UserModel class
  */
 @WebServlet(name = "RegisterServlet", value = "/RegisterServlet")
 @MultipartConfig(
@@ -30,25 +32,8 @@ public class RegisterServlet extends HttpServlet {
     /**
      * Handles GET requests to the RegisterServlet
      *
-     * This method displays the registration form to the user.
-     *
-     * For session management implementation:
-     * You could check if the user is already logged in here and redirect them
-     * to their dashboard instead of showing the registration form.
-     *
-     * Example:
-     * ```java
-     * HttpSession session = request.getSession(false);
-     * if (session != null && session.getAttribute("user") != null) {
-     *     UserModel user = (UserModel) session.getAttribute("user");
-     *     if (user.getRole() == UserModel.Role.admin) {
-     *         response.sendRedirect("AdminDashboardServlet");
-     *     } else {
-     *         response.sendRedirect("UserDashboardServlet");
-     *     }
-     *     return;
-     * }
-     * ```
+     * This method checks if the user is already logged in and redirects them to the appropriate
+     * dashboard. If not, it displays the registration form.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -57,7 +42,21 @@ public class RegisterServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Forward to the registration JSP page
+        // Check if the user is already logged in
+        if (AuthService.isAuthenticated(request)) {
+            // Get the user from the session
+            UserModel user = AuthService.getCurrentUser(request);
+
+            // Redirect to the appropriate dashboard based on user role
+            if (user.getRole() == UserModel.Role.admin) {
+                response.sendRedirect("AdminDashboardServlet");
+            } else {
+                response.sendRedirect("UserDashboardServlet");
+            }
+            return;
+        }
+
+        // User is not logged in, show the registration form
         request.getRequestDispatcher("/WEB-INF/views/register.jsp").forward(request, response);
     }
 
@@ -65,23 +64,8 @@ public class RegisterServlet extends HttpServlet {
      * Handles POST requests to the RegisterServlet
      *
      * This method processes the registration form submission, validates the input,
-     * and registers the user if the input is valid.
-     *
-     * For session management implementation:
-     * After successful registration, you could:
-     * 1. Create a session: HttpSession session = request.getSession();
-     * 2. Store user information: session.setAttribute("user", userObject);
-     * 3. Set session timeout: session.setMaxInactiveInterval(1800); // 30 minutes
-     * 4. Redirect directly to the dashboard instead of the login page
-     *
-     * For cookie implementation:
-     * You could create a remember-me cookie after registration:
-     * ```java
-     * Cookie userCookie = new Cookie("user_email", email);
-     * userCookie.setMaxAge(60*60*24*30); // 30 days
-     * userCookie.setPath("/");
-     * response.addCookie(userCookie);
-     * ```
+     * registers the user if the input is valid, and creates a session for the new user.
+     * The password is automatically hashed by the UserModel class.
      *
      * @param request The HTTP request object
      * @param response The HTTP response object
@@ -138,19 +122,18 @@ public class RegisterServlet extends HttpServlet {
             int userID = AuthService.register(name, email, password, role, imageBytes);
 
             if (userID != -1) {
-                // Registration successful
-                // Redirect to login page with success message as a request parameter
-                response.sendRedirect("LoginServlet?message=Registration+successful!+Please+login+with+your+credentials.");
+                // Registration successful - Get the user and create a session
+                UserModel user = AuthService.getUserById(userID);
 
-                // For session implementation, you would do this instead:
-                // UserModel user = AuthService.getUserById(userID);
-                // HttpSession session = request.getSession();
-                // session.setAttribute("user", user);
-                // if (user.getRole() == UserModel.Role.admin) {
-                //     response.sendRedirect("AdminDashboardServlet");
-                // } else {
-                //     response.sendRedirect("UserDashboardServlet");
-                // }
+                // Create a session for the new user
+                AuthService.createUserSession(request, user, 1800); // 30 minutes timeout
+
+                // Redirect to the appropriate dashboard based on user role
+                if (user.getRole() == UserModel.Role.admin) {
+                    response.sendRedirect("AdminDashboardServlet");
+                } else {
+                    response.sendRedirect("UserDashboardServlet");
+                }
             } else {
                 // Registration failed
                 request.setAttribute("errorMessage", "Registration failed. Email may already be in use.");

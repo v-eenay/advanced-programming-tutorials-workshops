@@ -1,6 +1,7 @@
 package com.example.aptutorialworkshop.models;
 
 import java.io.Serializable;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * UserModel Class
@@ -123,15 +124,20 @@ public class UserModel implements Serializable {
     /**
      * Set the user's password
      *
-     * @param password The user's password
+     * This method hashes the password using BCrypt before storing it.
+     * BCrypt automatically generates and includes a salt in the hash.
      *
-     * Note: In a production environment, this should hash the password
-     * before storing it. Example implementation with BCrypt:
-     *
-     * this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+     * @param password The user's plain text password to be hashed and stored
      */
     public void setPassword(String password) {
-        this.password = password;
+        // Check if the password is already hashed (starts with $2a$)
+        if (password != null && !password.startsWith("$2a$")) {
+            // Hash the password with BCrypt
+            this.password = BCrypt.hashpw(password, BCrypt.gensalt(12));
+        } else {
+            // Password is already hashed or null
+            this.password = password;
+        }
     }
 
     /**
@@ -171,6 +177,22 @@ public class UserModel implements Serializable {
     }
 
     /**
+     * Verify a plain text password against the stored hash
+     *
+     * This method uses BCrypt to check if the provided plain text password
+     * matches the stored hashed password.
+     *
+     * @param plainTextPassword The plain text password to verify
+     * @return true if the password matches, false otherwise
+     */
+    public boolean verifyPassword(String plainTextPassword) {
+        if (this.password == null || plainTextPassword == null) {
+            return false;
+        }
+        return BCrypt.checkpw(plainTextPassword, this.password);
+    }
+
+    /**
      * Session Management Implementation Guide
      *
      * This model class is designed to work with session management. Here's how to implement it:
@@ -203,27 +225,5 @@ public class UserModel implements Serializable {
      *        session.invalidate(); // Removes all session attributes
      *    }
      *    ```
-     *
-     * 4. For cookies implementation:
-     *    - Create a remember-me cookie:
-     *      ```java
-     *      Cookie userCookie = new Cookie("user_email", user.getEmail());
-     *      userCookie.setMaxAge(60*60*24*30); // 30 days
-     *      userCookie.setPath("/");
-     *      response.addCookie(userCookie);
-     *      ```
-     *
-     *    - Read cookies for auto-login:
-     *      ```java
-     *      Cookie[] cookies = request.getCookies();
-     *      if (cookies != null) {
-     *          for (Cookie cookie : cookies) {
-     *              if ("user_email".equals(cookie.getName())) {
-     *                  String email = cookie.getValue();
-     *                  // Auto-login logic
-     *              }
-     *          }
-     *      }
-     *      ```
      */
 }

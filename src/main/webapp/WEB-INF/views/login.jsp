@@ -59,7 +59,7 @@
                 <%-- Remember Me checkbox for cookie implementation --%>
                 <div class="form-group remember-me">
                     <label class="checkbox-container">
-                        <input type="checkbox" name="remember-me" id="remember-me">
+                        <input type="checkbox" name="remember-me" id="remember-me" value="on">
                         <span class="checkmark"></span>
                         Remember me on this device
                     </label>

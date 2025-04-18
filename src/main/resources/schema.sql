@@ -11,10 +11,12 @@ CREATE TABLE IF NOT EXISTS users (
                                      id INT AUTO_INCREMENT PRIMARY KEY,
                                      name VARCHAR(100) NOT NULL,
                                      email VARCHAR(100) NOT NULL UNIQUE,
-                                     password VARCHAR(100) NOT NULL,
+                                     password VARCHAR(255) NOT NULL, -- Increased size for BCrypt hashes
                                      role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
                                      profile_picture MEDIUMBLOB
 );
+
+-- Note: The passwords below will be hashed by the application when users log in for the first time
 
 -- Insert sample admin user if not exists
 INSERT INTO users (name, email, password, role)

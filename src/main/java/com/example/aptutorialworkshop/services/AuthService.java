@@ -8,30 +8,24 @@ import jakarta.servlet.http.HttpSession;
 /**
  * AuthService Class
  *
- * This service class provides authentication and user management functionality.
- * It acts as an intermediary between the controllers and the data access layer,
- * encapsulating the business logic related to user authentication and registration.
- *
- * For session management implementation:
- * - Use the login method to authenticate users and create sessions
- * - Use the getUserById method to retrieve user information for session validation
- * - Consider adding methods for session validation and user authorization
+ * Provides authentication, session management, and user operations.
+ * Handles user login, registration, session creation/validation, and logout.
+ * Uses BCrypt for secure password verification.
  */
 public class AuthService {
 
     /**
      * Register a new user
      *
-     * This method creates a new UserModel object with the provided information
-     * and passes it to the UserDAO for registration in the database.
-     * The password is automatically hashed by the UserModel.setPassword method.
+     * Creates a user with the provided information and registers in database.
+     * Password is automatically hashed using BCrypt.
      *
-     * @param name The user's full name
-     * @param email The user's email address
-     * @param password The user's plain text password (will be hashed)
-     * @param role The user's role ("admin" or "user")
-     * @param image The user's profile picture as a byte array
-     * @return The generated user ID if registration is successful, -1 otherwise
+     * @param name User's full name
+     * @param email User's email address
+     * @param password Plain text password (will be hashed)
+     * @param role User's role ("admin" or "user")
+     * @param image User's profile picture as byte array
+     * @return Generated user ID if successful, -1 otherwise
      */
     public static int register(String name, String email, String password, String role, byte[] image){
         // Create a new UserModel object
@@ -49,12 +43,11 @@ public class AuthService {
     /**
      * Authenticate a user
      *
-     * This method retrieves a user by email and verifies the provided password
-     * against the stored hash using BCrypt.
+     * Retrieves user by email and verifies password using BCrypt.
      *
-     * @param email The user's email address
-     * @param password The user's plain text password
-     * @return The complete UserModel if authentication is successful, null otherwise
+     * @param email User's email address
+     * @param password User's plain text password
+     * @return Complete UserModel if authenticated, null otherwise
      */
     public static UserModel login(String email, String password){
         // Get the user by email
@@ -72,28 +65,23 @@ public class AuthService {
     /**
      * Retrieve a user by ID
      *
-     * This method retrieves a complete user record from the database using the user ID.
+     * Gets complete user record from database using ID.
+     * Used after registration to retrieve the newly created user.
      *
-     * @param id The user ID to look up
-     * @return The complete UserModel if found, null otherwise
-     *
-     * For session implementation:
-     * This method is useful for:
-     * 1. Refreshing user data during a session
-     * 2. Validating that a user ID stored in a session still exists in the database
-     * 3. Retrieving user details when only the ID is available (e.g., from a session)
+     * @param id User ID to look up
+     * @return Complete UserModel if found, null otherwise
      */
     public static UserModel getUserById(int id) {
         return UserDAO.getUserById(id);
     }
 
     /**
-     * Validate if a user is authenticated in the current session
+     * Check if user is authenticated
      *
-     * This method checks if there is a valid user object in the session.
+     * Verifies if a valid user object exists in the current session.
      *
-     * @param request The HTTP request object
-     * @return true if the user is authenticated, false otherwise
+     * @param request HTTP request object
+     * @return true if authenticated, false otherwise
      */
     public static boolean isAuthenticated(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -106,13 +94,12 @@ public class AuthService {
     }
 
     /**
-     * Check if the authenticated user has admin role
+     * Check if user has admin role
      *
-     * This method checks if there is a valid user object in the session
-     * and if that user has the admin role.
+     * Verifies if the authenticated user has admin privileges.
      *
-     * @param request The HTTP request object
-     * @return true if the user is an admin, false otherwise
+     * @param request HTTP request object
+     * @return true if user is admin, false otherwise
      */
     public static boolean isAdmin(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -125,14 +112,13 @@ public class AuthService {
     }
 
     /**
-     * Create a session for an authenticated user
+     * Create user session
      *
-     * This method creates a new session (or uses an existing one) and stores
-     * the user object in it. It also sets the session timeout.
+     * Creates/uses a session and stores user object with timeout.
      *
-     * @param request The HTTP request object
-     * @param user The authenticated user object
-     * @param timeoutSeconds The session timeout in seconds (default: 30 minutes)
+     * @param request HTTP request object
+     * @param user Authenticated user object
+     * @param timeoutSeconds Session timeout in seconds
      */
     public static void createUserSession(HttpServletRequest request, UserModel user, int timeoutSeconds) {
         HttpSession session = request.getSession();
@@ -141,10 +127,12 @@ public class AuthService {
     }
 
     /**
-     * Get the currently authenticated user from the session
+     * Get current user
      *
-     * @param request The HTTP request object
-     * @return The authenticated user object, or null if not authenticated
+     * Retrieves authenticated user from session.
+     *
+     * @param request HTTP request object
+     * @return User object or null if not authenticated
      */
     public static UserModel getCurrentUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -155,9 +143,11 @@ public class AuthService {
     }
 
     /**
-     * Invalidate the current user session (logout)
+     * Logout user
      *
-     * @param request The HTTP request object
+     * Invalidates the current session.
+     *
+     * @param request HTTP request object
      */
     public static void logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

@@ -10,28 +10,22 @@ import java.util.Base64;
 /**
  * LoginServlet
  *
- * This servlet handles user authentication functionality. It processes both GET requests
- * to display the login form and POST requests to authenticate users.
- *
- * Session management implementation:
- * 1. After successful authentication, creates a session for the user
- * 2. Stores user information in the session
- * 3. Uses filters to protect resources based on authentication status
- *
- * Note: Cookie implementation has been removed as it will be implemented separately.
+ * Handles user authentication and login process.
+ * Creates user sessions after successful authentication.
+ * Redirects to appropriate dashboard based on user role.
  */
 @WebServlet(name = "LoginServlet", value = "/LoginServlet")
 public class LoginServlet extends HttpServlet {
     /**
-     * Handles GET requests to the LoginServlet
+     * Handles GET requests
      *
-     * This method checks if the user is already logged in and redirects them to the appropriate
-     * dashboard. If not, it displays the login form with any success messages from registration.
+     * Checks for existing session and redirects to dashboard if logged in.
+     * Otherwise displays login form with any messages.
      *
-     * @param request The HTTP request object
-     * @param response The HTTP response object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException If an I/O error occurs
+     * @param request HTTP request
+     * @param response HTTP response
+     * @throws ServletException If servlet error occurs
+     * @throws IOException If I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -61,16 +55,15 @@ public class LoginServlet extends HttpServlet {
     }
 
     /**
-     * Handles POST requests to the LoginServlet
+     * Handles POST requests
      *
-     * This method processes the login form submission, validates the input,
-     * authenticates the user, creates a session, and redirects them to the appropriate
-     * dashboard if successful.
+     * Processes login form, validates credentials using BCrypt,
+     * creates session on success, and redirects to appropriate dashboard.
      *
-     * @param request The HTTP request object
-     * @param response The HTTP response object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException If an I/O error occurs
+     * @param request HTTP request
+     * @param response HTTP response
+     * @throws ServletException If servlet error occurs
+     * @throws IOException If I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

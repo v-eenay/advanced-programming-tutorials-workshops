@@ -6,30 +6,18 @@ import org.mindrot.jbcrypt.BCrypt;
 /**
  * UserModel Class
  *
- * This class represents a user in the system. It contains all the user attributes
- * such as id, name, email, password, role, and profile image.
- *
- * The class implements Serializable to support session management, allowing
- * the user object to be stored in the session and retrieved across requests.
- *
- * In a production environment, consider the following enhancements:
- * 1. Password hashing: Store hashed passwords instead of plain text
- * 2. Input validation: Add validation for email format, password strength, etc.
- * 3. Additional user attributes: Add more user information as needed
+ * Represents a user with attributes like id, name, email, password, role, and profile image.
+ * Implements Serializable to support session storage and retrieval.
+ * Uses BCrypt for secure password hashing.
  */
 public class UserModel implements Serializable {
 
     /**
      * Role Enumeration
      *
-     * Defines the possible roles a user can have in the system:
+     * Defines user roles in the system:
      * - admin: Has administrative privileges
      * - user: Regular user with limited access
-     *
-     * When implementing session management, the role can be used for authorization:
-     * 1. Store the user's role in the session after login
-     * 2. Check the role before allowing access to protected resources
-     * 3. Use role-based filters to restrict access to certain pages
      */
     public enum Role{admin, user}
 
@@ -42,7 +30,7 @@ public class UserModel implements Serializable {
     // User's email address (used for login)
     private String email;
 
-    // User's password (should be hashed in production)
+    // User's password (BCrypt hashed)
     private String password;
 
     // User's role (admin or regular user)
@@ -192,38 +180,5 @@ public class UserModel implements Serializable {
         return BCrypt.checkpw(plainTextPassword, this.password);
     }
 
-    /**
-     * Session Management Implementation Guide
-     *
-     * This model class is designed to work with session management. Here's how to implement it:
-     *
-     * 1. Creating a session and storing user information:
-     *    After successful login in LoginServlet:
-     *    ```java
-     *    HttpSession session = request.getSession();
-     *    session.setAttribute("user", userObject);
-     *    // Optionally set session timeout (in seconds)
-     *    session.setMaxInactiveInterval(1800); // 30 minutes
-     *    ```
-     *
-     * 2. Retrieving user information from session:
-     *    In any servlet or JSP:
-     *    ```java
-     *    HttpSession session = request.getSession(false); // Don't create a new session if none exists
-     *    if (session != null) {
-     *        UserModel user = (UserModel) session.getAttribute("user");
-     *        if (user != null) {
-     *            // User is logged in, use user information
-     *        }
-     *    }
-     *    ```
-     *
-     * 3. Implementing logout:
-     *    ```java
-     *    HttpSession session = request.getSession(false);
-     *    if (session != null) {
-     *        session.invalidate(); // Removes all session attributes
-     *    }
-     *    ```
-     */
+
 }

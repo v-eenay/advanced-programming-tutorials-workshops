@@ -11,16 +11,8 @@ import java.sql.SQLException;
 /**
  * UserDAO (Data Access Object) Class
  *
- * This class handles all database operations related to the User entity.
- * It provides methods for user registration, authentication, and retrieval.
- *
- * The DAO pattern separates the data access logic from the business logic,
- * making the code more maintainable and testable.
- *
- * When implementing session management and filters:
- * 1. Use the loginUser method for authentication in the login process
- * 2. Use the getUserById method to retrieve user details when needed
- * 3. Consider adding methods for updating user information
+ * Handles database operations for users including registration, authentication, and retrieval.
+ * Supports BCrypt password hashing and session management.
  */
 public class UserDAO {
     // SQL query to insert a new user into the database
@@ -36,19 +28,12 @@ public class UserDAO {
     public static final String SELECT_USER_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
 
     /**
-     * Register a new user in the database
+     * Register a new user
      *
-     * This method inserts a new user record into the database and returns the generated user ID.
-     * It's used during the registration process.
+     * Inserts user record into database with BCrypt hashed password.
      *
-     * @param user The UserModel object containing the user information to be registered
-     * @return The generated user ID if registration is successful, -1 otherwise
-     *
-     * For session implementation:
-     * After successful registration, you might want to:
-     * 1. Create a session for the newly registered user
-     * 2. Set session attributes with user information
-     * 3. Redirect to the appropriate dashboard based on user role
+     * @param user UserModel with registration information
+     * @return Generated user ID if successful, -1 otherwise
      */
     public static int registerUser(UserModel user) {
         try (Connection connection = DBConnectionUtil.getConnection();
@@ -56,7 +41,7 @@ public class UserDAO {
             // Set parameters for the prepared statement
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword()); // In production, this should be hashed
+            ps.setString(3, user.getPassword()); // Password is already hashed by UserModel
             ps.setString(4, user.getRole().name());
             ps.setBytes(5, user.getImage());
 
@@ -81,13 +66,12 @@ public class UserDAO {
     /**
      * Authenticate a user by email and password
      *
-     * This method is kept for backward compatibility but is no longer used for authentication.
-     * Authentication is now handled by retrieving the user by email and then verifying the password
-     * using BCrypt in the AuthService class.
+     * Legacy method kept for compatibility. Authentication now uses getUserByEmail
+     * with BCrypt verification in AuthService.
      *
-     * @param user A UserModel object containing at least the email and password to check
-     * @return The complete UserModel if authentication is successful, null otherwise
-     * @deprecated Use getUserByEmail and then verify the password with BCrypt instead
+     * @param user UserModel with email and password
+     * @return UserModel if found, null otherwise
+     * @deprecated Use getUserByEmail with BCrypt verification instead
      */
     @Deprecated
     public static UserModel loginUser(UserModel user) {
@@ -97,14 +81,12 @@ public class UserDAO {
     }
 
     /**
-     * Retrieve a user by their email address
+     * Get user by email
      *
-     * This method fetches a complete user record from the database using the email address.
-     * It's used during the authentication process to retrieve the user's hashed password
-     * for verification with BCrypt.
+     * Retrieves user record by email for authentication with BCrypt.
      *
-     * @param email The email address to look up
-     * @return The complete UserModel if found, null otherwise
+     * @param email Email address to look up
+     * @return Complete UserModel if found, null otherwise
      */
     public static UserModel getUserByEmail(String email) {
         try (Connection connection = DBConnectionUtil.getConnection();
@@ -135,32 +117,13 @@ public class UserDAO {
     }
 
     /**
-     * Retrieve a user by their ID
+     * Get user by ID
      *
-     * This method fetches a complete user record from the database using the user ID.
-     * It's useful for retrieving user information when only the ID is available.
+     * Retrieves complete user record using ID.
+     * Used after registration and for session management.
      *
-     * @param id The user ID to look up
-     * @return The complete UserModel if found, null otherwise
-     *
-     * For session implementation:
-     * This method is particularly useful when:
-     * 1. Storing only the user ID in the session for security reasons
-     * 2. Retrieving the full user object when needed using the ID from the session
-     * 3. Refreshing user data from the database during a session
-     *
-     * Example usage with sessions:
-     * ```java
-     * // In a servlet that needs user information
-     * HttpSession session = request.getSession(false);
-     * if (session != null) {
-     *     Integer userId = (Integer) session.getAttribute("userId");
-     *     if (userId != null) {
-     *         UserModel user = UserDAO.getUserById(userId);
-     *         // Use the user object
-     *     }
-     * }
-     * ```
+     * @param id User ID to look up
+     * @return Complete UserModel if found, null otherwise
      */
     public static UserModel getUserById(int id) {
         try (Connection connection = DBConnectionUtil.getConnection();

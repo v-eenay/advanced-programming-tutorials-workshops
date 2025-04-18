@@ -9,30 +9,21 @@ import java.io.IOException;
 /**
  * LogoutServlet
  *
- * This servlet handles user logout functionality. It invalidates the user's session
- * and redirects to the login page.
- *
- * Usage:
- * 1. Add a logout link in your dashboard pages:
- *    <a href="${pageContext.request.contextPath}/LogoutServlet">Logout</a>
- *
- * 2. When the user clicks the link, this servlet will:
- *    - Invalidate their session using the AuthService
- *    - Redirect them to the login page
+ * Handles user logout by invalidating the session.
+ * Redirects to login page with success message.
  */
 @WebServlet(name = "LogoutServlet", value = "/LogoutServlet")
 public class LogoutServlet extends HttpServlet {
 
     /**
-     * Handles GET requests to the LogoutServlet
+     * Handles GET requests
      *
-     * This method invalidates the user's session using the AuthService.
-     * After logout, it redirects to the login page with a success message.
+     * Invalidates user session and redirects to login page with success message.
      *
-     * @param request The HTTP request object
-     * @param response The HTTP response object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException If an I/O error occurs
+     * @param request HTTP request
+     * @param response HTTP response
+     * @throws ServletException If servlet error occurs
+     * @throws IOException If I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -43,8 +34,7 @@ public class LogoutServlet extends HttpServlet {
         // Invalidate the session using the AuthService
         AuthService.logout(request);
 
-        // Note: Cookie implementation will be added later
-        // When implementing cookies, you would add code here to delete any authentication cookies
+        // Note: Cookie implementation will be added separately
 
         // Redirect to the login page with a success message if the user was logged in
         if (wasLoggedIn) {
@@ -56,14 +46,14 @@ public class LogoutServlet extends HttpServlet {
     }
 
     /**
-     * Handles POST requests to the LogoutServlet
+     * Handles POST requests
      *
-     * This method delegates to doGet to handle the logout process.
+     * Delegates to doGet for logout processing.
      *
-     * @param request The HTTP request object
-     * @param response The HTTP response object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException If an I/O error occurs
+     * @param request HTTP request
+     * @param response HTTP response
+     * @throws ServletException If servlet error occurs
+     * @throws IOException If I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

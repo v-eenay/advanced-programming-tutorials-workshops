@@ -9,18 +9,9 @@ import java.io.IOException;
 /**
  * RegisterServlet
  *
- * This servlet handles user registration functionality. It processes both GET requests
- * to display the registration form and POST requests to process form submissions.
- *
- * The servlet is annotated with @MultipartConfig to handle file uploads (profile pictures).
- *
- * Session management implementation:
- * 1. Checks if user is already logged in before showing registration form
- * 2. After successful registration, creates a session for the user
- * 3. Redirects to the appropriate dashboard based on user role
- *
- * Password security:
- * - Passwords are automatically hashed using BCrypt in the UserModel class
+ * Handles user registration with profile picture uploads.
+ * Secures passwords using BCrypt hashing.
+ * Creates user sessions after successful registration.
  */
 @WebServlet(name = "RegisterServlet", value = "/RegisterServlet")
 @MultipartConfig(
@@ -30,15 +21,15 @@ import java.io.IOException;
 )
 public class RegisterServlet extends HttpServlet {
     /**
-     * Handles GET requests to the RegisterServlet
+     * Handles GET requests
      *
-     * This method checks if the user is already logged in and redirects them to the appropriate
-     * dashboard. If not, it displays the registration form.
+     * Checks for existing session and redirects to dashboard if logged in.
+     * Otherwise displays registration form.
      *
-     * @param request The HTTP request object
-     * @param response The HTTP response object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException If an I/O error occurs
+     * @param request HTTP request
+     * @param response HTTP response
+     * @throws ServletException If servlet error occurs
+     * @throws IOException If I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -61,16 +52,15 @@ public class RegisterServlet extends HttpServlet {
     }
 
     /**
-     * Handles POST requests to the RegisterServlet
+     * Handles POST requests
      *
-     * This method processes the registration form submission, validates the input,
-     * registers the user if the input is valid, and creates a session for the new user.
-     * The password is automatically hashed by the UserModel class.
+     * Processes registration form, validates input, creates user with BCrypt hashed password,
+     * and creates session on success.
      *
-     * @param request The HTTP request object
-     * @param response The HTTP response object
-     * @throws ServletException If a servlet-specific error occurs
-     * @throws IOException If an I/O error occurs
+     * @param request HTTP request
+     * @param response HTTP response
+     * @throws ServletException If servlet error occurs
+     * @throws IOException If I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

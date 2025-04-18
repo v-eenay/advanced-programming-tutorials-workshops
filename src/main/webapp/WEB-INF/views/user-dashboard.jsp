@@ -33,7 +33,7 @@
             <div class="menu-item"><a href="#">Dashboard</a></div>
             <div class="menu-item"><a href="#">My Courses</a></div>
             <div class="menu-item"><a href="#">Profile Settings</a></div>
-            <div class="menu-item"><a href="${pageContext.request.contextPath}/index.jsp">Logout</a></div>
+            <div class="menu-item"><a href="${pageContext.request.contextPath}/LogoutServlet">Logout</a></div>
         </div>
 
         <div class="main-content">

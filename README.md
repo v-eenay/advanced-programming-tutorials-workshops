@@ -89,10 +89,16 @@ The application comes with two default users:
 - `src/main/webapp/`: Web resources (JSP, CSS, JS, images)
 - `src/main/resources/`: Configuration files
 
+## Security Features
+
+- **Session Management**: Implemented secure session handling for authenticated users
+- **Password Security**: Uses BCrypt for secure password hashing
+- **Role-based Access**: Different dashboards and access levels for admin and regular users
+
 ## Notes
 
-- This application does not implement sessions, cookies, or filters. These would need to be added for a production environment.
-- Password storage is not secure (plain text). In a production environment, passwords should be hashed.
+- Cookies and filters are not yet implemented but placeholders are available for future implementation
+- Default user passwords will be automatically hashed on first login
 
 ## Version Control
 

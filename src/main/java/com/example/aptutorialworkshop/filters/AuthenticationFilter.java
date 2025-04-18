@@ -1,5 +1,10 @@
 package com.example.aptutorialworkshop.filters;
 
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.*;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+
 /**
  * AuthenticationFilter
  *
@@ -8,10 +13,8 @@ package com.example.aptutorialworkshop.filters;
  * requests to protected URLs and redirect unauthenticated users to the login page.
  *
  * Implementation Guidelines:
- * 1. Make this class implement the Filter interface
- * 2. Add necessary imports (jakarta.servlet.*, jakarta.servlet.http.*, etc.)
- * 3. Add the @WebFilter annotation with appropriate URL patterns to protect
- *    (e.g., "/UserDashboardServlet", "/AdminDashboardServlet", etc.)
+ * 1. Uncomment the @WebFilter annotation with appropriate URL patterns to protect
+ * 2. Implement the doFilter method to check for authentication
  *
  * In the doFilter method, you should:
  * 1. Cast the request and response to HttpServletRequest and HttpServletResponse
@@ -34,6 +37,25 @@ package com.example.aptutorialworkshop.filters;
  * - "RegisterServlet"
  * - "/assets/" (for CSS, JS, images, etc.)
  */
-public class AuthenticationFilter {
-    // Implement this class as a Filter
+// @WebFilter(urlPatterns = {"/UserDashboardServlet", "/AdminDashboardServlet", "/WEB-INF/views/user-dashboard.jsp", "/WEB-INF/views/admin-dashboard.jsp"})
+public class AuthenticationFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Initialization code
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        // TODO: Implement authentication logic here
+
+        // For now, just pass the request along the filter chain
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        // Cleanup code
+    }
 }

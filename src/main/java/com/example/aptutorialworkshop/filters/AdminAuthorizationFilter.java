@@ -1,5 +1,10 @@
 package com.example.aptutorialworkshop.filters;
 
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.*;
+import jakarta.servlet.http.*;
+import java.io.IOException;
+
 /**
  * AdminAuthorizationFilter
  *
@@ -8,10 +13,8 @@ package com.example.aptutorialworkshop.filters;
  * requests to admin URLs and redirect unauthorized users to the login page.
  *
  * Implementation Guidelines:
- * 1. Make this class implement the Filter interface
- * 2. Add necessary imports (jakarta.servlet.*, jakarta.servlet.http.*, etc.)
- * 3. Add the @WebFilter annotation with appropriate URL patterns to protect
- *    (e.g., "/AdminDashboardServlet", "/WEB-INF/views/admin-dashboard.jsp")
+ * 1. Uncomment the @WebFilter annotation with appropriate URL patterns to protect
+ * 2. Implement the doFilter method to check for admin authorization
  *
  * In the doFilter method, you should:
  * 1. Cast the request and response to HttpServletRequest and HttpServletResponse
@@ -29,6 +32,25 @@ package com.example.aptutorialworkshop.filters;
  * 1. Get the user object from the session
  * 2. Check if the user's role is UserModel.Role.admin
  */
-public class AdminAuthorizationFilter {
-    // Implement this class as a Filter
+// @WebFilter(urlPatterns = {"/AdminDashboardServlet", "/WEB-INF/views/admin-dashboard.jsp"})
+public class AdminAuthorizationFilter implements Filter {
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Initialization code
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        // TODO: Implement admin authorization logic here
+
+        // For now, just pass the request along the filter chain
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        // Cleanup code
+    }
 }
